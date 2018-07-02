@@ -1,0 +1,14 @@
+Using username "ogordon".
+ogordon@pppzam2.nottingham.ac.uk's password: neuralnetw0rk
+
+If using Theano, to run with GPU, use THEANO_FLAGS=device=gpu,floatX=float32 python trainer2.py
+
+Copy code + files over: open cmd window and type
+pscp -pw RememberThePass c:/Users/Oliver/OneDrive/MATLAB/SPMClassifier/Database/Training_Images_16_4.mat ogordon@pppzam2.nottingham.ac.uk:/home/ogordon
+
+Copy code + files back: open cmd window and type
+pscp ogordon@pppzam2.nottingham.ac.uk:/home/ogordon/model_16_4.h5 c:\Users\Oliver\Desktop
+
+e.g. 
+pscp -pw neuralnetw0rk ogordon@pppzam2.nottingham.ac.uk:/home/ogordon/model_16_4.h5 c:\Users\Oliver\Desktop
+pscp -pw neuralnetw0rk ogordon@pppzam2.nottingham.ac.uk:/home/ogordon/model_16_4.h5 c:\Users\Oliver\Desktop

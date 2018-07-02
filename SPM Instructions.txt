@@ -1,0 +1,65 @@
+SPM Notes
+
+GENERAL
+- Don't stamp heavily, don't even touch table if scanning as will ruin image
+
+XY SCANNER WINDOW:
+- Be careful of setpoint too high (tip crash)
+- Faster scan speed = more gain, lower quality image
+- To find windows, go to windows toolbar (right click = open, left = close)
+- Scan region in green. Can drag and move about. Wants to do square, but can make rectangle and use angles
+- Below zoom in/out button is centre window button
+- Increasing time between points decreases speed
+- 150nm/s is decent speed, but on the fast side
+- For a larger image, use slower speed
+- All changes are instantaneous, so can do in middle of image
+- At bottom of window can stop, start, pause
+
+Z FORWARD WINDOW:
+- Can zoom in and out with scroll wheel
+- Pan by clicking middle mouse button
+- Green line/circle is the current tip position
+- On pause, will see green circle where currently scanning
+- On stop, green circle goes back to left bottom corner
+- Images don't get overwritten
+- Can move image to XY scanner window by pressing "alt" and dragging to green 
+	square. This gives spatial reference to whole surface 
+- Pressing very bottom red button at bottom right corner resets view to current scan location
+- Pressing other button will change scan grid axis based on where mouse is hovered over
+- Top right corner shows scan line number. Write down if see interesting things
+- Top left corner shows index number of image
+	- e.g. up = 19_1, down = 19_1, next up = 19_2, etc
+	- If press stop, start, = 20_1, etc
+- If contrast isn't good, right click on window->properties->display properties->reset
+
+Z REGULATION WINDOW:
+- V gap
+- Loop gain
+- I setpoint
+- Green bar shows height of tip relative to piezoelectric motor (doesn't really matter)
+
+Z CHANNEL WINDOW:
+- Shows tip current along the green line in Z forward window
+- "Height" coming "out" of monitor relative to Z forward window image
+- Updates with speed given in XY scanner
+
+TIP CONDITIONING WINDOW:
+- For crashing tip
+- Don't touch voltage pulse (for relly bad tips)
+- Z ramp
+	- Change delta z
+	- minus = down
+	- After a crash, will automatically come back
+	- On Z forward window, select bottom left corner-> Z ramp -> Select position by clicking -> Crash
+	- -0.5nm is good
+	- Will not leave very big blob if tip is good & vice versa
+
+ATOM MANIPULATION WINDOW:
+- In z regulation, use bottom left corner button to click and drag a blue line
+- Push/drag atoms
+- I(R) manipulation window gives current along tip path. If it goes up then atom being moved :D
+- Increase speed when doing manipulation
+- Gap voltage -0.1V, Current 300pA, Movement, -0.001V, Z -0.1nm, saw 25nA current when moving (=adam success)
+- 
+
+
