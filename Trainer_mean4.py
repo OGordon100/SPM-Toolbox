@@ -14,8 +14,8 @@ from keras.layers import Dense, Dropout, Flatten, Activation
 from keras.layers import Conv2D, MaxPooling2D
 from keras import initializers
 from keras.preprocessing.image import ImageDataGenerator
+
 import numpy
-#import numpy
 import os
 from scipy.io import loadmat
 import scipy
@@ -74,8 +74,13 @@ y_train[y_train>10] = 0
 #y_test[y_test[:,0]==0,1] = 1
 
 # Reshape
-x_train = x_train.reshape(x_train.shape[2], img_rows, img_cols, 1)
-x_test = x_test.reshape(x_test.shape[2], img_rows, img_cols, 1)
+    # from shape (img_rows, img_cols, nb_of_images) to (nb_of_images, img_rows, img_cols)
+x_train = numpy.rot90(numpy.rot90(x_train, axes=(2, 0)), axes=(1, 2))
+    # from shape (nb_of_image, img_rows, img_cols ) to (nb_of_image, img_rows, img_cols, 1)
+x_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, 1)
+
+x_test = numpy.rot90(numpy.rot90(x_test, axes=(2, 0)),  axes=(1, 2))
+x_test = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1)
 input_shape = (img_rows, img_cols, 1)
 
 # Convert to proper grayscale
