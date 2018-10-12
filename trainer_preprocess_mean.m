@@ -109,7 +109,7 @@ disp('Shuffling Images    ...')
 % Apply rotation - keep detail by rotating 512x512 image and zooming
 
 % Precalculate rotations
-if rotate_resize == 1:
+if rotate_resize == 1
     rotate_index = (rotate_range).*rand(length(matrix_names_fin),1);
     for badimrotator = 1:length(matrix_names_fin)
         
