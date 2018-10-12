@@ -3,10 +3,12 @@ clearvars -except input_data
 %% Setup
 
 % Settings
-image_size = 128;                % Training resolution
+image_size = 128;                 % Training resolution
 rep_no = 10;                     % Number of repeats of each image
 agreement_clip = 0.4;            % Threshold to remove low agreement image
 perc_test = 0.2;                 % Percentage of data to in train/test set
+rotate_range = 360;
+rotate_resize = 1;
 
 % Input directories
 if exist('input_data','var') == 0
@@ -53,7 +55,7 @@ if strcmp(input_choice,'Image Folder') == 1
             [image_size,image_size]);
     end
     
-    % Save output 
+    % Save output
     disp('Saving Image Matrix ...')
     u8 = uint8(matrix_image_temp);
     save(['Database/Greyscale_Images_',num2str(image_size),'.mat']...
@@ -66,7 +68,7 @@ else
     input_images = fullfile(input_file_folder,input_file_images);
     disp('Reading in Images   ...')
     matrix_image_struct = load(input_images);
-    matrix_image_temp = double(matrix_image_struct.u8); 
+    matrix_image_temp = double(matrix_image_struct.u8);
 end
 
 % Convert to uint8
@@ -82,7 +84,7 @@ disp('Assigning Weights   ...')
 % Determine number of repeats of each category to avoid imbalanced data
 total_weights = sum(mean_scores);
 max_weight = max(total_weights);
-weight_multiplier = round(max_weight./total_weights); 
+weight_multiplier = round(max_weight./total_weights);
 
 % Repeat images to allow for random rotations, etc
 matrix_names_fin = repmat(matrix_names_temp,rep_no,1);
@@ -98,17 +100,65 @@ matrix_category_fin(disagree_index,:) = [];
 
 % Shuffle about data
 disp('Shuffling Images    ...')
-rng(1234)
-swap_index = randperm(length(matrix_category_fin))';
-matrix_names_fin = matrix_names_fin(swap_index);
-matrix_category_fin = matrix_category_fin(swap_index,:);
-matrix_image_fin = matrix_image_fin(:,:,swap_index);
+% rng(1234)
+% swap_index = randperm(length(matrix_category_fin))';
+% matrix_names_fin = matrix_names_fin(swap_index);
+% matrix_category_fin = matrix_category_fin(swap_index,:);
+% matrix_image_fin = matrix_image_fin(:,:,swap_index);
+
+% Apply rotation - keep detail by rotating 512x512 image and zooming
+
+% Precalculate rotations
+if rotate_resize == 1:
+    rotate_index = (rotate_range).*rand(length(matrix_names_fin),1);
+    for badimrotator = 1:length(matrix_names_fin)
+        
+        % DON'T DO THIS IF TIP CHANGE PRESENT OR IMAGE NOT SQUARE!!!!!!!!!
+        if (matrix_category_fin(badimrotator,5) ~= 1)
+            
+            % Open up original 512x512 in greyscale
+            if strcmp(input_choice,'Image Folder') ~= 1
+                input_images = uigetdir('Select Image Folder:');
+            end
+            im_big = rgb2gray(imread(strjoin...
+                ([input_images,matrix_names_fin(badimrotator)],'\')));
+            
+            if size(im_big,1) == size(im_big,2)
+                % Apply rotation and crop back to a square
+                rotated_im = imRotateCrop(im_big,rotate_index(badimrotator));
+                
+                % If we have extra pixels, zoom in a random amount (weighted x^2 to be
+                % increasingly unlikely to zoom in more)
+                population  = image_size:length(rotated_im);
+                range_maker = (1:length(population)).^2;
+                probs = range_maker/norm(range_maker,1);
+                zoom_to = randsample(population,1,true,probs);
+                
+                if zoom_to < image_size
+                    error()
+                end
+                
+                % Resize to image_size
+                rotated_im_zoomed = imresize(rotated_im(1:zoom_to,1:zoom_to),...
+                    [image_size,image_size]);
+                
+                % Store
+                matrix_image_fin(:,:,badimrotator) = rotated_im_zoomed;
+            end
+        end
+    end
+end
 
 %% Save
 
 % Separate into testing and training data sets
 topval = length(matrix_names_fin);
-train_cutoff = round(topval-(topval*perc_test));
+if perc_test == 0
+    train_cutoff = topval;
+else
+    train_cutoff = round(topval-(topval*perc_test));
+end
+
 x_train = matrix_image_fin(:,:,1:train_cutoff);
 x_test = matrix_image_fin(:,:,(train_cutoff+1):end);
 y_train = matrix_category_fin(1:train_cutoff,:);
