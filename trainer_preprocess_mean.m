@@ -100,29 +100,37 @@ matrix_category_fin(disagree_index,:) = [];
 
 % Shuffle about data
 disp('Shuffling Images    ...')
-% rng(1234)
-% swap_index = randperm(length(matrix_category_fin))';
-% matrix_names_fin = matrix_names_fin(swap_index);
-% matrix_category_fin = matrix_category_fin(swap_index,:);
-% matrix_image_fin = matrix_image_fin(:,:,swap_index);
+rng(1234)
+swap_index = randperm(length(matrix_category_fin))';
+matrix_names_fin = matrix_names_fin(swap_index);
+matrix_category_fin = matrix_category_fin(swap_index,:);
+matrix_image_fin = matrix_image_fin(:,:,swap_index);
 
 % Apply rotation - keep detail by rotating 512x512 image and zooming
-
+%%
 % Precalculate rotations
 if rotate_resize == 1
     rotate_index = (rotate_range).*rand(length(matrix_names_fin),1);
     for badimrotator = 1:length(matrix_names_fin)
+        %disp(num2str(badimrotator))
+                
+        % Open up original 512x512 in greyscale
+        if strcmp(input_choice,'Image Folder') ~= 1
+            input_images = uigetdir('Select Image Folder:');
+        end
+        im_big = rgb2gray(imread(strjoin...
+            ([input_images,matrix_names_fin(badimrotator)],'\')));
+        
+        % Randomly flip vertically/horizontally
+        if rand(1,1) < 0.5
+            im_big = flipud(im_big);
+        end
+        if rand(1,1) < 0.5
+            im_big = fliplr(im_big);
+        end
         
         % DON'T DO THIS IF TIP CHANGE PRESENT OR IMAGE NOT SQUARE!!!!!!!!!
-        if (matrix_category_fin(badimrotator,5) ~= 1)
-            
-            % Open up original 512x512 in greyscale
-            if strcmp(input_choice,'Image Folder') ~= 1
-                input_images = uigetdir('Select Image Folder:');
-            end
-            im_big = rgb2gray(imread(strjoin...
-                ([input_images,matrix_names_fin(badimrotator)],'\')));
-            
+        if (matrix_category_fin(badimrotator,5) ~= 1)           
             if size(im_big,1) == size(im_big,2)
                 % Apply rotation and crop back to a square
                 rotated_im = imRotateCrop(im_big,rotate_index(badimrotator));
@@ -134,12 +142,20 @@ if rotate_resize == 1
                 probs = range_maker/norm(range_maker,1);
                 zoom_to = randsample(population,1,true,probs);
                 
+                % Rubbish check to make sure we aren't overzooming
                 if zoom_to < image_size
                     error()
                 end
                 
+                % Determine extra pixels avaliable for panning
+                pan_length = length(rotated_im) - zoom_to;
+                rand_pan = round(pan_length*rand(1));
+                
+                
                 % Resize to image_size
-                rotated_im_zoomed = imresize(rotated_im(1:zoom_to,1:zoom_to),...
+                rotated_im_zoomed = imresize(rotated_im(...
+                    1+rand_pan : zoom_to+rand_pan,...
+                    1+rand_pan : zoom_to+rand_pan),...
                     [image_size,image_size]);
                 
                 % Store
